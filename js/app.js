@@ -47,6 +47,7 @@ async function loadApartments() {
 function renderApartments() {
     const grid = document.getElementById('apartmentsGrid');
     const emptyState = document.getElementById('emptyState');
+    const isAuthenticated = auth.isAuthenticated();
     
     if (filteredApartments.length === 0) {
         grid.classList.add('hidden');
@@ -85,6 +86,7 @@ function renderApartments() {
                             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
                         <i class="fas fa-eye mr-2"></i>View Details
                     </button>
+                    ${isAuthenticated ? `
                     <button onclick="editApartment('${apartment.id}')" 
                             class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition">
                         <i class="fas fa-edit"></i>
@@ -93,6 +95,7 @@ function renderApartments() {
                             class="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition">
                         <i class="fas fa-trash"></i>
                     </button>
+                    ` : ''}
                 </div>
             </div>
         </div>
@@ -136,6 +139,12 @@ function checkBedrooms(bedrooms, filter) {
 }
 
 function openModal(apartment = null) {
+    if (!auth.isAuthenticated()) {
+        showError('Please login to add or edit apartments.');
+        openLoginModal();
+        return;
+    }
+
     const modal = document.getElementById('apartmentModal');
     const form = document.getElementById('apartmentForm');
     const title = document.getElementById('modalTitle');
@@ -235,6 +244,7 @@ async function viewApartment(id) {
                 <p class="text-sm text-gray-600 mb-2">Description</p>
                 <p class="text-gray-800">${apartment.description}</p>
             </div>
+            ${auth.isAuthenticated() ? `
             <div class="flex gap-3 mt-6">
                 <button onclick="editApartment('${apartment.id}')" 
                         class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
@@ -245,6 +255,7 @@ async function viewApartment(id) {
                     <i class="fas fa-trash mr-2"></i>Delete
                 </button>
             </div>
+            ` : ''}
         `;
 
         document.getElementById('viewModal').classList.remove('hidden');
@@ -270,6 +281,12 @@ async function editApartment(id) {
 }
 
 async function deleteApartment(id) {
+    if (!auth.isAuthenticated()) {
+        showError('Please login to delete apartments.');
+        openLoginModal();
+        return;
+    }
+
     if (!confirm('Are you sure you want to delete this apartment?')) return;
 
     try {

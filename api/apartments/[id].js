@@ -1,3 +1,5 @@
+import { verifyAuth } from '../utils/auth.js';
+
 export default async function handler(req, res) {
     const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
     const { id } = req.query;
@@ -33,6 +35,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
+        const auth = await verifyAuth(req);
+        if (!auth.valid) {
+            return res.status(401).json({ error: auth.error || 'Unauthorized' });
+        }
+
         try {
             const response = await fetch(`${UPSTASH_REDIS_REST_URL}/get/${key}`, {
                 headers: {
@@ -72,6 +79,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+        const auth = await verifyAuth(req);
+        if (!auth.valid) {
+            return res.status(401).json({ error: auth.error || 'Unauthorized' });
+        }
+
         try {
             const response = await fetch(`${UPSTASH_REDIS_REST_URL}/get/${key}`, {
                 headers: {

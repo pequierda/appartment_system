@@ -1,3 +1,5 @@
+import { verifyAuth } from '../utils/auth.js';
+
 export default async function handler(req, res) {
     const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
 
@@ -29,6 +31,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+        const auth = await verifyAuth(req);
+        if (!auth.valid) {
+            return res.status(401).json({ error: auth.error || 'Unauthorized' });
+        }
+
         try {
             const newApartment = {
                 id: Date.now().toString(),

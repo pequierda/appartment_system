@@ -5,16 +5,30 @@ class UpstashAPI {
 
     async request(endpoint, options = {}) {
         try {
+            const token = localStorage.getItem('admin_token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${this.baseUrl}${endpoint}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                },
+                headers,
                 ...options
             });
 
+            if (response.status === 401) {
+                localStorage.removeItem('admin_token');
+                window.location.reload();
+                throw new Error('Unauthorized');
+            }
+
             if (!response.ok) {
-                throw new Error(`API Error: ${response.statusText}`);
+                const error = await response.json().catch(() => ({ error: response.statusText }));
+                throw new Error(error.error || `API Error: ${response.statusText}`);
             }
 
             return await response.json();
