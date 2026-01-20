@@ -65,6 +65,34 @@ class UpstashAPI {
             method: 'DELETE'
         });
     }
+
+    async getAllTenants() {
+        return this.request('/tenants');
+    }
+
+    async getTenant(id) {
+        return this.request(`/tenants/${id}`);
+    }
+
+    async createTenant(data) {
+        return this.request('/tenants', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async updateTenant(id, data) {
+        return this.request(`/tenants/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async deleteTenant(id) {
+        return this.request(`/tenants/${id}`, {
+            method: 'DELETE'
+        });
+    }
 }
 
 const api = new UpstashAPI();

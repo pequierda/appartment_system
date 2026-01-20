@@ -36,6 +36,9 @@ class Auth {
             this.setToken(data.token);
             this.updateUI(true);
             setTimeout(() => {
+                if (typeof loadTenants === 'function') {
+                    loadTenants();
+                }
                 if (typeof loadApartments === 'function') {
                     loadApartments();
                 }
@@ -100,7 +103,8 @@ class Auth {
         const loginScreen = document.getElementById('loginScreen');
         const mainContent = document.getElementById('mainContent');
         const logoutBtn = document.getElementById('logoutBtn');
-        const addBtn = document.getElementById('addApartmentBtn');
+        const manageBtn = document.getElementById('manageApartmentsBtn');
+        const tenantBtn = document.getElementById('addTenantBtn');
         const nav = document.getElementById('mainNav');
 
         if (isAuthenticated) {
@@ -108,13 +112,15 @@ class Auth {
             mainContent.classList.remove('hidden');
             nav.classList.remove('hidden');
             logoutBtn.classList.remove('hidden');
-            addBtn.classList.remove('hidden');
+            manageBtn.classList.remove('hidden');
+            tenantBtn.classList.remove('hidden');
         } else {
             loginScreen.classList.remove('hidden');
             mainContent.classList.add('hidden');
             nav.classList.add('hidden');
             logoutBtn.classList.add('hidden');
-            addBtn.classList.add('hidden');
+            manageBtn.classList.add('hidden');
+            tenantBtn.classList.add('hidden');
         }
 
         this.updateApartmentCards(isAuthenticated);

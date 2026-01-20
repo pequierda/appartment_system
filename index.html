@@ -18,9 +18,13 @@
                     <span class="text-xl font-bold text-gray-800">Apartment Rental</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="addApartmentBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mt-2 hidden">
-                        <i class="fas fa-plus"></i>
-                        <span class="hidden sm:inline">Add Apartment</span>
+                    <button id="manageApartmentsBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mt-2 hidden">
+                        <i class="fas fa-building"></i>
+                        <span class="hidden sm:inline">Manage Apartments</span>
+                    </button>
+                    <button id="addTenantBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mt-2 hidden">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="hidden sm:inline">New Tenants</span>
                     </button>
                     <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mt-2 hidden">
                         <i class="fas fa-sign-out-alt"></i>
@@ -68,14 +72,14 @@
         <!-- Loading State -->
         <div id="loadingState" class="text-center py-12 hidden">
             <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
-            <p class="mt-4 text-gray-600">Loading apartments...</p>
+            <p class="mt-4 text-gray-600">Loading tenants...</p>
         </div>
 
         <!-- Empty State -->
         <div id="emptyState" class="text-center py-12 hidden">
-            <i class="fas fa-home text-6xl text-gray-300 mb-4"></i>
-            <p class="text-xl text-gray-600">No apartments found</p>
-            <p class="text-gray-500 mt-2">Add your first apartment to get started</p>
+            <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+            <p class="text-xl text-gray-600">No tenants found</p>
+            <p class="text-gray-500 mt-2">Add your first tenant to get started</p>
         </div>
 
         <!-- Apartments Grid -->
@@ -111,63 +115,111 @@
         </div>
     </div>
 
-    <!-- Add/Edit Apartment Modal -->
-    <div id="apartmentModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <!-- Manage Apartments Modal -->
+    <div id="manageApartmentsModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">Add New Apartment</h3>
-                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                <h3 class="text-2xl font-bold text-gray-800" id="manageModalTitle">Manage Apartment</h3>
+                <button id="closeManageModal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <form id="apartmentForm" class="space-y-4">
-                <input type="hidden" id="apartmentId">
+            <form id="manageApartmentForm" class="space-y-4">
+                <input type="hidden" id="manageApartmentId">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Apartment Name</label>
-                        <input type="text" id="apartmentName" required
+                        <input type="text" id="manageApartmentName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                        <input type="text" id="manageUnit" required placeholder="e.g., Unit 101"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                        <input type="text" id="location" required
+                        <input type="text" id="manageLocation" required
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Price ($/month)</label>
-                        <input type="number" id="price" required min="0"
+                        <input type="number" id="managePrice" required min="0"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" id="cancelManageBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Save Apartment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Tenant Modal -->
+    <div id="tenantModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800" id="tenantModalTitle">New Tenants</h3>
+                <button id="closeTenantModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form id="tenantForm" class="space-y-4">
+                <input type="hidden" id="tenantId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select id="status" required
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Apartment Name</label>
+                        <select id="tenantApartmentName" required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select Status</option>
-                            <option value="available">Available</option>
-                            <option value="occupied">Occupied</option>
+                            <option value="">Select Apartment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <select id="tenantLocation" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select Location</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea id="description" rows="3" required
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tenant Names</label>
+                    <div id="tenantNamesContainer">
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" name="tenantName" placeholder="Enter tenant name" required
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <button type="button" onclick="removeTenantName(this)" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 hidden">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addTenantNameField()" class="mt-2 text-blue-600 hover:text-blue-700 text-sm">
+                        <i class="fas fa-plus mr-1"></i>Add Another Tenant
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Apartment Image</label>
-                    <input type="file" id="apartmentImage" accept="image/*" capture="environment"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <p class="text-xs text-gray-500 mt-1">Click to upload or take a photo with your camera</p>
-                    <div id="imagePreview" class="mt-2 hidden">
-                        <img id="previewImg" src="" alt="Preview" class="max-w-full h-48 object-cover rounded-lg border border-gray-300">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Electricity Submeter</label>
+                        <input type="text" id="electricitySubmeter" placeholder="e.g., SM-001"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Water Submeter</label>
+                        <input type="text" id="waterSubmeter" placeholder="e.g., SM-002"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-4">
-                    <button type="button" id="cancelBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    <button type="button" id="cancelTenantBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Save Apartment
+                        Save Tenants
                     </button>
                 </div>
             </form>
@@ -191,6 +243,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/manage.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
