@@ -61,12 +61,9 @@ module.exports = async function handler(req, res) {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'text/plain'
             },
-            body: JSON.stringify({
-                ex: 86400,
-                value: JSON.stringify(sessionData)
-            })
+            body: JSON.stringify(sessionData)
         });
 
         res.setHeader('Access-Control-Allow-Origin', '*');

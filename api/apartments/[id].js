@@ -61,14 +61,19 @@ module.exports = async function handler(req, res) {
                 updatedAt: new Date().toISOString()
             };
 
-            await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
+            const setResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
-                body: JSON.stringify(JSON.stringify(apartments))
+                body: JSON.stringify(apartments)
             });
+
+            if (!setResponse.ok) {
+                const errorData = await setResponse.json().catch(() => ({}));
+                throw new Error(`Failed to save: ${JSON.stringify(errorData)}`);
+            }
 
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.status(200).json(apartments[index]);
@@ -99,14 +104,19 @@ module.exports = async function handler(req, res) {
                 return res.status(404).json({ error: 'Apartment not found' });
             }
 
-            await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
+            const setResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
-                body: JSON.stringify(JSON.stringify(filteredApartments))
+                body: JSON.stringify(filteredApartments)
             });
+
+            if (!setResponse.ok) {
+                const errorData = await setResponse.json().catch(() => ({}));
+                throw new Error(`Failed to delete: ${JSON.stringify(errorData)}`);
+            }
 
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.status(200).json({ message: 'Apartment deleted successfully' });

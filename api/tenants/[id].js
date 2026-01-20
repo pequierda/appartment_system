@@ -80,14 +80,19 @@ module.exports = async function handler(req, res) {
                 updatedAt: new Date().toISOString()
             };
 
-            await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
+            const setResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
-                body: JSON.stringify(JSON.stringify(tenants))
+                body: JSON.stringify(tenants)
             });
+
+            if (!setResponse.ok) {
+                const errorData = await setResponse.json().catch(() => ({}));
+                throw new Error(`Failed to update: ${JSON.stringify(errorData)}`);
+            }
 
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.status(200).json(tenants[index]);
@@ -118,14 +123,19 @@ module.exports = async function handler(req, res) {
                 return res.status(404).json({ error: 'Tenant not found' });
             }
 
-            await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
+            const setResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
-                body: JSON.stringify(JSON.stringify(filteredTenants))
+                body: JSON.stringify(filteredTenants)
             });
+
+            if (!setResponse.ok) {
+                const errorData = await setResponse.json().catch(() => ({}));
+                throw new Error(`Failed to delete: ${JSON.stringify(errorData)}`);
+            }
 
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.status(200).json({ message: 'Tenant deleted successfully' });

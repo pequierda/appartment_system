@@ -53,14 +53,19 @@ module.exports = async function handler(req, res) {
             const apartments = data.result ? JSON.parse(data.result) : [];
             apartments.push(newApartment);
 
-            await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
+            const setResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
-                body: JSON.stringify(JSON.stringify(apartments))
+                body: JSON.stringify(apartments)
             });
+
+            if (!setResponse.ok) {
+                const errorData = await setResponse.json().catch(() => ({}));
+                throw new Error(`Failed to save: ${JSON.stringify(errorData)}`);
+            }
 
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.status(201).json(newApartment);
