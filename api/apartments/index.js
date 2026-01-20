@@ -62,10 +62,15 @@ module.exports = async function handler(req, res) {
             
             if (data.result) {
                 try {
-                    apartments = JSON.parse(data.result);
+                    const parsed = JSON.parse(data.result);
+                    apartments = Array.isArray(parsed) ? parsed : [];
                 } catch (e) {
                     apartments = [];
                 }
+            }
+            
+            if (!Array.isArray(apartments)) {
+                apartments = [];
             }
             
             apartments.push(newApartment);

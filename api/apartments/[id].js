@@ -19,7 +19,17 @@ module.exports = async function handler(req, res) {
             });
 
             const data = await response.json();
-            const apartments = data.result ? JSON.parse(data.result) : [];
+            let apartments = [];
+            
+            if (data.result) {
+                try {
+                    const parsed = JSON.parse(data.result);
+                    apartments = Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    apartments = [];
+                }
+            }
+            
             const apartment = apartments.find(apt => apt.id === id);
 
             if (!apartment) {
@@ -48,7 +58,17 @@ module.exports = async function handler(req, res) {
             });
 
             const data = await response.json();
-            const apartments = data.result ? JSON.parse(data.result) : [];
+            let apartments = [];
+            
+            if (data.result) {
+                try {
+                    const parsed = JSON.parse(data.result);
+                    apartments = Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    apartments = [];
+                }
+            }
+            
             const index = apartments.findIndex(apt => apt.id === id);
 
             if (index === -1) {
@@ -97,7 +117,17 @@ module.exports = async function handler(req, res) {
             });
 
             const data = await response.json();
-            const apartments = data.result ? JSON.parse(data.result) : [];
+            let apartments = [];
+            
+            if (data.result) {
+                try {
+                    const parsed = JSON.parse(data.result);
+                    apartments = Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    apartments = [];
+                }
+            }
+            
             const filteredApartments = apartments.filter(apt => apt.id !== id);
 
             if (apartments.length === filteredApartments.length) {
