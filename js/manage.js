@@ -67,7 +67,6 @@ function updateTenantDropdowns() {
 
 window.addTenantNameField = addTenantNameField;
 window.removeTenantName = removeTenantName;
-}
 
 function openManageModal(apartment = null) {
     const modal = document.getElementById('manageApartmentsModal');
