@@ -1,0 +1,19 @@
+{
+  "name": "apartment-rental-system",
+  "version": "1.0.0",
+  "description": "Apartment rental management system",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "apartment",
+    "rental",
+    "vercel",
+    "upstash"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+
