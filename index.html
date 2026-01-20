@@ -104,8 +104,10 @@
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
                 <div id="loginErrorMain" class="hidden text-red-600 text-sm text-center"></div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                <button type="submit" id="loginSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center">
+                    <i id="loginSpinner" class="fas fa-spinner fa-spin mr-2 hidden"></i>
+                    <i id="loginIcon" class="fas fa-sign-in-alt mr-2"></i>
+                    <span id="loginText">Login</span>
                 </button>
             </form>
         </div>

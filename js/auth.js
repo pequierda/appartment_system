@@ -153,18 +153,46 @@ function setupAuthListeners() {
 async function handleLogin(e) {
     e.preventDefault();
     const errorDiv = document.getElementById('loginErrorMain');
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const spinner = document.getElementById('loginSpinner');
+    const loginIcon = document.getElementById('loginIcon');
+    const loginText = document.getElementById('loginText');
+    
     errorDiv.classList.add('hidden');
+    
+    // Show spinner and disable button
+    spinner.classList.remove('hidden');
+    loginIcon.classList.add('hidden');
+    loginText.textContent = 'Logging in...';
+    submitBtn.disabled = true;
 
     const username = document.getElementById('usernameMain').value;
     const password = document.getElementById('passwordMain').value;
 
-    const result = await auth.login(username, password);
+    try {
+        const result = await auth.login(username, password);
 
-    if (result.success) {
-        showSuccess('Login successful!');
-    } else {
-        errorDiv.textContent = result.error || 'Invalid credentials';
+        if (result.success) {
+            // Login successful - UI will update automatically
+        } else {
+            errorDiv.textContent = result.error || 'Invalid credentials';
+            errorDiv.classList.remove('hidden');
+            
+            // Reset button state
+            spinner.classList.add('hidden');
+            loginIcon.classList.remove('hidden');
+            loginText.textContent = 'Login';
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
         errorDiv.classList.remove('hidden');
+        
+        // Reset button state
+        spinner.classList.add('hidden');
+        loginIcon.classList.remove('hidden');
+        loginText.textContent = 'Login';
+        submitBtn.disabled = false;
     }
 }
 
