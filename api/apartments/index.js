@@ -18,7 +18,15 @@ module.exports = async function handler(req, res) {
             });
 
             const data = await response.json();
-            const apartments = data.result ? JSON.parse(data.result) : [];
+            let apartments = [];
+            
+            if (data.result) {
+                try {
+                    apartments = JSON.parse(data.result);
+                } catch (e) {
+                    apartments = [];
+                }
+            }
             
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
@@ -26,7 +34,7 @@ module.exports = async function handler(req, res) {
             return res.status(200).json(apartments);
         } catch (error) {
             console.error('Error fetching apartments:', error);
-            return res.status(500).json({ error: 'Failed to fetch apartments' });
+            return res.status(500).json({ error: 'Failed to fetch apartments', details: error.message });
         }
     }
 
@@ -50,28 +58,54 @@ module.exports = async function handler(req, res) {
             });
 
             const data = await response.json();
-            const apartments = data.result ? JSON.parse(data.result) : [];
+            let apartments = [];
+            
+            if (data.result) {
+                try {
+                    apartments = JSON.parse(data.result);
+                } catch (e) {
+                    apartments = [];
+                }
+            }
+            
             apartments.push(newApartment);
 
             const setResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/set/${key}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-                    'Content-Type': 'text/plain'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(apartments)
             });
 
+            const setData = await setResponse.json();
+            
             if (!setResponse.ok) {
-                const errorData = await setResponse.json().catch(() => ({}));
-                throw new Error(`Failed to save: ${JSON.stringify(errorData)}`);
+                console.error('Upstash set error - Status:', setResponse.status, 'Data:', setData);
+                return res.status(500).json({ 
+                    error: 'Failed to save apartment to Upstash', 
+                    details: setData.error || setData.message || JSON.stringify(setData),
+                    status: setResponse.status
+                });
+            }
+            
+            if (setData.error) {
+                console.error('Upstash set error:', setData);
+                return res.status(500).json({ 
+                    error: 'Failed to save apartment to Upstash', 
+                    details: setData.error 
+                });
             }
 
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.status(201).json(newApartment);
         } catch (error) {
             console.error('Error creating apartment:', error);
-            return res.status(500).json({ error: 'Failed to create apartment' });
+            return res.status(500).json({ 
+                error: 'Failed to create apartment', 
+                details: error.message 
+            });
         }
     }
 

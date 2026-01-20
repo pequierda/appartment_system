@@ -27,8 +27,15 @@ class UpstashAPI {
             }
 
             if (!response.ok) {
-                const error = await response.json().catch(() => ({ error: response.statusText }));
-                throw new Error(error.error || `API Error: ${response.statusText}`);
+                let error;
+                try {
+                    error = await response.json();
+                } catch (e) {
+                    const text = await response.text();
+                    error = { error: text || response.statusText };
+                }
+                console.error('API Error Response:', error);
+                throw new Error(error.error || error.details || `API Error: ${response.statusText}`);
             }
 
             return await response.json();
