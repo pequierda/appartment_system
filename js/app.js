@@ -21,7 +21,9 @@ function setupEventListeners() {
     
     document.getElementById('searchInput').addEventListener('input', applyFilters);
     document.getElementById('priceFilter').addEventListener('change', applyFilters);
-    document.getElementById('bedroomFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+    document.getElementById('apartmentImage').addEventListener('change', handleImagePreview);
 
     document.getElementById('apartmentModal').addEventListener('click', (e) => {
         if (e.target.id === 'apartmentModal') closeModal();
@@ -30,6 +32,23 @@ function setupEventListeners() {
     document.getElementById('viewModal').addEventListener('click', (e) => {
         if (e.target.id === 'viewModal') closeViewModal();
     });
+}
+
+function handleImagePreview(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.classList.add('hidden');
+    }
 }
 
 async function loadApartments() {
@@ -77,10 +96,15 @@ function renderApartments() {
                     <i class="fas fa-map-marker-alt text-blue-600 mr-2"></i>
                     ${apartment.location}
                 </p>
-                <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
-                    <span><i class="fas fa-bed text-blue-600 mr-1"></i> ${apartment.bedrooms} Bed</span>
-                    <span><i class="fas fa-bath text-blue-600 mr-1"></i> ${apartment.bathrooms} Bath</span>
-                    <span><i class="fas fa-ruler-combined text-blue-600 mr-1"></i> ${apartment.area} sq ft</span>
+                <div class="mb-4">
+                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                        apartment.status === 'available' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                    }">
+                        <i class="fas ${apartment.status === 'available' ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i>
+                        ${apartment.status === 'available' ? 'Available' : 'Occupied'}
+                    </span>
                 </div>
                 <p class="text-gray-700 text-sm mb-4 line-clamp-2">${apartment.description}</p>
                 <div class="flex gap-2">
@@ -107,7 +131,7 @@ function renderApartments() {
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const priceFilter = document.getElementById('priceFilter').value;
-    const bedroomFilter = document.getElementById('bedroomFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
 
     filteredApartments = apartments.filter(apartment => {
         const matchesSearch = !searchTerm || 
@@ -117,9 +141,9 @@ function applyFilters() {
 
         const matchesPrice = !priceFilter || checkPriceRange(apartment.price, priceFilter);
 
-        const matchesBedroom = !bedroomFilter || checkBedrooms(apartment.bedrooms, bedroomFilter);
+        const matchesStatus = !statusFilter || apartment.status === statusFilter;
 
-        return matchesSearch && matchesPrice && matchesBedroom;
+        return matchesSearch && matchesPrice && matchesStatus;
     });
 
     renderApartments();
@@ -133,11 +157,6 @@ function checkPriceRange(price, range) {
         case '2000+': return price > 2000;
         default: return true;
     }
-}
-
-function checkBedrooms(bedrooms, filter) {
-    if (filter === '4+') return bedrooms >= 4;
-    return bedrooms === parseInt(filter);
 }
 
 function openModal(apartment = null) {
@@ -156,15 +175,23 @@ function openModal(apartment = null) {
         document.getElementById('apartmentName').value = apartment.name;
         document.getElementById('location').value = apartment.location;
         document.getElementById('price').value = apartment.price;
-        document.getElementById('bedrooms').value = apartment.bedrooms;
-        document.getElementById('bathrooms').value = apartment.bathrooms;
-        document.getElementById('area').value = apartment.area;
+        document.getElementById('status').value = apartment.status || 'available';
         document.getElementById('description').value = apartment.description;
-        document.getElementById('imageUrl').value = apartment.imageUrl || '';
+        
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        if (apartment.imageUrl) {
+            previewImg.src = apartment.imageUrl;
+            imagePreview.classList.remove('hidden');
+        } else {
+            imagePreview.classList.add('hidden');
+        }
+        document.getElementById('apartmentImage').value = '';
     } else {
         title.textContent = 'Add New Apartment';
         form.reset();
         document.getElementById('apartmentId').value = '';
+        document.getElementById('imagePreview').classList.add('hidden');
     }
 
     modal.classList.remove('hidden');
@@ -173,21 +200,32 @@ function openModal(apartment = null) {
 function closeModal() {
     document.getElementById('apartmentModal').classList.add('hidden');
     document.getElementById('apartmentForm').reset();
+    document.getElementById('imagePreview').classList.add('hidden');
 }
 
 async function handleFormSubmit(e) {
     e.preventDefault();
     
     const id = document.getElementById('apartmentId').value;
+    const imageFile = document.getElementById('apartmentImage').files[0];
+    let imageUrl = null;
+    
+    if (imageFile) {
+        imageUrl = await convertImageToBase64(imageFile);
+    } else {
+        const existingImg = document.getElementById('previewImg').src;
+        if (existingImg && existingImg.startsWith('data:') || existingImg.startsWith('http')) {
+            imageUrl = existingImg;
+        }
+    }
+    
     const data = {
         name: document.getElementById('apartmentName').value,
         location: document.getElementById('location').value,
         price: parseFloat(document.getElementById('price').value),
-        bedrooms: parseInt(document.getElementById('bedrooms').value),
-        bathrooms: parseFloat(document.getElementById('bathrooms').value),
-        area: parseInt(document.getElementById('area').value),
+        status: document.getElementById('status').value,
         description: document.getElementById('description').value,
-        imageUrl: document.getElementById('imageUrl').value || null
+        imageUrl: imageUrl
     };
 
     try {
@@ -203,6 +241,15 @@ async function handleFormSubmit(e) {
         showError('Failed to save apartment. Please try again.');
         console.error(error);
     }
+}
+
+function convertImageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 async function viewApartment(id) {
@@ -229,16 +276,13 @@ async function viewApartment(id) {
                     <p class="text-lg font-semibold text-gray-800">${apartment.location}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-600">Bedrooms</p>
-                    <p class="text-lg font-semibold text-gray-800">${apartment.bedrooms}</p>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-600">Bathrooms</p>
-                    <p class="text-lg font-semibold text-gray-800">${apartment.bathrooms}</p>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-600">Area</p>
-                    <p class="text-lg font-semibold text-gray-800">${apartment.area} sq ft</p>
+                    <p class="text-sm text-gray-600">Status</p>
+                    <p class="text-lg font-semibold ${
+                        apartment.status === 'available' ? 'text-green-600' : 'text-red-600'
+                    }">
+                        <i class="fas ${apartment.status === 'available' ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i>
+                        ${apartment.status === 'available' ? 'Available' : 'Occupied'}
+                    </p>
                 </div>
             </div>
             <div>
