@@ -5,14 +5,10 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, ADMIN_USERNAME, ADMIN_PASSWORD } = process.env;
+    const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
 
     if (!UPSTASH_REDIS_REST_URL || !UPSTASH_REDIS_REST_TOKEN) {
         return res.status(500).json({ error: 'Upstash configuration missing' });
-    }
-
-    if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
-        return res.status(500).json({ error: 'Admin credentials not configured' });
     }
 
     const { username, password } = req.body;
@@ -21,8 +17,35 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+    try {
+        const usernameResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/get/apartment:username`, {
+            headers: {
+                'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`
+            }
+        });
+
+        const passwordResponse = await fetch(`${UPSTASH_REDIS_REST_URL}/get/apartment:password`, {
+            headers: {
+                'Authorization': `Bearer ${UPSTASH_REDIS_REST_TOKEN}`
+            }
+        });
+
+        const usernameData = await usernameResponse.json();
+        const passwordData = await passwordResponse.json();
+
+        const storedUsername = usernameData.result || '';
+        const storedPassword = passwordData.result || '';
+
+        if (!storedUsername || !storedPassword) {
+            return res.status(500).json({ error: 'Admin credentials not configured in Upstash' });
+        }
+
+        if (username !== storedUsername || password !== storedPassword) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error('Error fetching credentials from Upstash:', error);
+        return res.status(500).json({ error: 'Failed to verify credentials' });
     }
 
     try {

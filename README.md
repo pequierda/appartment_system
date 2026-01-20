@@ -40,10 +40,17 @@ cd appartment_system
 3. Add the following variables:
    - `UPSTASH_REDIS_REST_URL` - Your Upstash REST URL
    - `UPSTASH_REDIS_REST_TOKEN` - Your Upstash REST Token
-   - `ADMIN_USERNAME` - Your admin username (e.g., "admin")
-   - `ADMIN_PASSWORD` - Your admin password (use a strong password)
 
-### 4. Deploy to Vercel
+### 4. Configure Admin Credentials in Upstash
+
+1. Go to your Upstash Redis Console
+2. Create the following keys with your admin credentials:
+   - `apartment:username` - Your admin username (e.g., "admin")
+   - `apartment:password` - Your admin password (use a strong password)
+
+You can set these values using the Upstash console or REST API.
+
+### 5. Deploy to Vercel
 
 #### Option A: Deploy via Vercel CLI
 
@@ -58,7 +65,7 @@ vercel
 2. Import your repository in Vercel
 3. Vercel will automatically detect and deploy
 
-### 5. Access Your Application
+### 6. Access Your Application
 
 After deployment, Vercel will provide you with a URL. Your application will be live!
 
@@ -106,10 +113,14 @@ Make sure to set these in your Vercel project:
 
 - `UPSTASH_REDIS_REST_URL` - Upstash Redis REST API URL
 - `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis REST API Token
-- `ADMIN_USERNAME` - Admin username for login
-- `ADMIN_PASSWORD` - Admin password for login (keep this secure!)
 
-**Security Note**: Never commit your admin credentials to version control. Always use environment variables.
+## Admin Credentials
+
+Admin credentials are stored in Upstash Redis with the following keys:
+- `apartment:username` - Admin username
+- `apartment:password` - Admin password
+
+**Security Note**: Never commit your admin credentials to version control. Store them securely in Upstash Redis.
 
 ## License
 
