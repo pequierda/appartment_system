@@ -1,6 +1,6 @@
-import { verifyAuth } from '../utils/auth.js';
+const { verifyAuth } = require('../utils/auth.js');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
     const { id } = req.query;
 

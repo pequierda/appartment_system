@@ -1,4 +1,4 @@
-export async function verifyAuth(req) {
+async function verifyAuth(req) {
     const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } = process.env;
     const authHeader = req.headers.authorization;
 
@@ -41,4 +41,6 @@ export async function verifyAuth(req) {
         return { valid: false, error: 'Failed to verify session' };
     }
 }
+
+module.exports = { verifyAuth };
 
