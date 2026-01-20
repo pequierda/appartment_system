@@ -23,6 +23,7 @@ async function loadApartments() {
     try {
         apartments = await api.getAllApartments();
         window.apartments = apartments;
+        renderApartmentsList();
         if (typeof updateTenantDropdowns === 'function') {
             updateTenantDropdowns();
         }
@@ -30,8 +31,83 @@ async function loadApartments() {
         console.error('Error loading apartments:', error);
         apartments = [];
         window.apartments = apartments;
+        renderApartmentsList();
     }
 }
+
+function renderApartmentsList() {
+    const listContainer = document.getElementById('apartmentsList');
+    if (!listContainer) return;
+
+    if (!Array.isArray(apartments) || apartments.length === 0) {
+        listContainer.innerHTML = `
+            <div class="text-center text-gray-500 py-4">
+                <i class="fas fa-building text-4xl mb-2"></i>
+                <p>No apartments added yet</p>
+            </div>
+        `;
+        return;
+    }
+
+    listContainer.innerHTML = apartments.map(apt => `
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-green-500 transition">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h5 class="font-semibold text-gray-800 text-lg">${apt.name}</h5>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">${apt.unit || 'No Unit'}</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-600">
+                        <div>
+                            <i class="fas fa-map-marker-alt text-blue-600 mr-1"></i>
+                            <span>${apt.location}</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-dollar-sign text-green-600 mr-1"></i>
+                            <span>$${apt.price}/month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="editApartmentFromList('${apt.id}')" 
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+                        <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                    <button onclick="deleteApartmentFromList('${apt.id}')" 
+                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+                        <i class="fas fa-trash mr-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function editApartmentFromList(id) {
+    try {
+        const apartment = await api.getApartment(id);
+        openManageModal(apartment);
+    } catch (error) {
+        showError('Failed to load apartment for editing.');
+        console.error(error);
+    }
+}
+
+async function deleteApartmentFromList(id) {
+    if (!confirm('Are you sure you want to delete this apartment?')) return;
+
+    try {
+        await api.deleteApartment(id);
+        await loadApartments();
+        showSuccess('Apartment deleted successfully!');
+    } catch (error) {
+        showError('Failed to delete apartment.');
+        console.error(error);
+    }
+}
+
+window.editApartmentFromList = editApartmentFromList;
+window.deleteApartmentFromList = deleteApartmentFromList;
 
 window.loadApartments = loadApartments;
 window.updateTenantDropdowns = updateTenantDropdowns;
@@ -120,12 +196,15 @@ async function handleManageSubmit(e) {
     try {
         if (id) {
             await api.updateApartment(id, data);
+            showSuccess('Apartment updated successfully!');
         } else {
             await api.createApartment(data);
+            showSuccess('Apartment added successfully!');
         }
-        closeManageModal();
         await loadApartments();
-        showSuccess(id ? 'Apartment updated successfully!' : 'Apartment added successfully!');
+        document.getElementById('manageApartmentForm').reset();
+        document.getElementById('manageApartmentId').value = '';
+        document.getElementById('manageModalTitle').textContent = 'Manage Apartment';
     } catch (error) {
         showError('Failed to save apartment. Please try again.');
         console.error(error);
