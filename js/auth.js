@@ -35,6 +35,11 @@ class Auth {
 
             this.setToken(data.token);
             this.updateUI(true);
+            setTimeout(() => {
+                if (typeof loadApartments === 'function') {
+                    loadApartments();
+                }
+            }, 100);
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
@@ -92,16 +97,22 @@ class Auth {
     }
 
     updateUI(isAuthenticated) {
-        const loginBtn = document.getElementById('loginBtn');
+        const loginScreen = document.getElementById('loginScreen');
+        const mainContent = document.getElementById('mainContent');
         const logoutBtn = document.getElementById('logoutBtn');
         const addBtn = document.getElementById('addApartmentBtn');
+        const nav = document.getElementById('mainNav');
 
         if (isAuthenticated) {
-            loginBtn.classList.add('hidden');
+            loginScreen.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            nav.classList.remove('hidden');
             logoutBtn.classList.remove('hidden');
             addBtn.classList.remove('hidden');
         } else {
-            loginBtn.classList.remove('hidden');
+            loginScreen.classList.remove('hidden');
+            mainContent.classList.add('hidden');
+            nav.classList.add('hidden');
             logoutBtn.classList.add('hidden');
             addBtn.classList.add('hidden');
         }
@@ -135,40 +146,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupAuthListeners() {
-    document.getElementById('loginBtn').addEventListener('click', () => openLoginModal());
     document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
-    document.getElementById('closeLoginModal').addEventListener('click', () => closeLoginModal());
-    document.getElementById('cancelLoginBtn').addEventListener('click', () => closeLoginModal());
-    document.getElementById('loginForm').addEventListener('submit', handleLogin);
-
-    document.getElementById('loginModal').addEventListener('click', (e) => {
-        if (e.target.id === 'loginModal') closeLoginModal();
-    });
-}
-
-function openLoginModal() {
-    document.getElementById('loginModal').classList.remove('hidden');
-    document.getElementById('loginError').classList.add('hidden');
-    document.getElementById('loginForm').reset();
-}
-
-function closeLoginModal() {
-    document.getElementById('loginModal').classList.add('hidden');
-    document.getElementById('loginError').classList.add('hidden');
+    document.getElementById('loginFormMain').addEventListener('submit', handleLogin);
 }
 
 async function handleLogin(e) {
     e.preventDefault();
-    const errorDiv = document.getElementById('loginError');
+    const errorDiv = document.getElementById('loginErrorMain');
     errorDiv.classList.add('hidden');
 
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = document.getElementById('usernameMain').value;
+    const password = document.getElementById('passwordMain').value;
 
     const result = await auth.login(username, password);
 
     if (result.success) {
-        closeLoginModal();
         showSuccess('Login successful!');
     } else {
         errorDiv.textContent = result.error || 'Invalid credentials';

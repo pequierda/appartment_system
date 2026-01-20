@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeApp() {
     setupEventListeners();
-    loadApartments();
+    if (auth.isAuthenticated()) {
+        loadApartments();
+    }
 }
 
 function setupEventListeners() {
@@ -141,7 +143,6 @@ function checkBedrooms(bedrooms, filter) {
 function openModal(apartment = null) {
     if (!auth.isAuthenticated()) {
         showError('Please login to add or edit apartments.');
-        openLoginModal();
         return;
     }
 
@@ -283,7 +284,6 @@ async function editApartment(id) {
 async function deleteApartment(id) {
     if (!auth.isAuthenticated()) {
         showError('Please login to delete apartments.');
-        openLoginModal();
         return;
     }
 

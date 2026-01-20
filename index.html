@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <!-- Navigation (Hidden until login) -->
+    <nav id="mainNav" class="bg-white shadow-lg hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -18,10 +18,6 @@
                     <span class="text-xl font-bold text-gray-800">Apartment Rental</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="loginBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mt-2">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span class="hidden sm:inline">Admin Login</span>
-                    </button>
                     <button id="addApartmentBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mt-2 hidden">
                         <i class="fas fa-plus"></i>
                         <span class="hidden sm:inline">Add Apartment</span>
@@ -35,8 +31,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Main Content (Hidden until login) -->
+    <div id="mainContent" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -86,6 +82,33 @@
 
         <!-- Apartments Grid -->
         <div id="apartmentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- Login Screen (Shown by default) -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <i class="fas fa-home text-5xl text-blue-600 mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-800">Admin Login</h2>
+                <p class="text-gray-600 mt-2">Please login to manage apartments</p>
+            </div>
+            <form id="loginFormMain" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input type="text" id="usernameMain" required autocomplete="username"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="passwordMain" required autocomplete="current-password"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div id="loginErrorMain" class="hidden text-red-600 text-sm text-center"></div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Add/Edit Apartment Modal -->
@@ -166,38 +189,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold text-gray-800">Admin Login</h3>
-                <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="loginForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                    <input type="text" id="username" required autocomplete="username"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password" required autocomplete="current-password"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div id="loginError" class="hidden text-red-600 text-sm"></div>
-                <div class="flex justify-end gap-3 pt-4">
-                    <button type="button" id="cancelLoginBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Login
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script src="js/api.js"></script>
