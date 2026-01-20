@@ -83,12 +83,11 @@ function renderTenants() {
                         `).join('')}
                     </div>
                 </div>
-                ${tenant.electricitySubmeter || tenant.waterSubmeter ? `
                 <div class="mb-3 text-sm">
+                    ${tenant.dateOccupied ? `<p class="text-gray-600"><i class="fas fa-calendar text-purple-500 mr-1"></i>Date Occupied: ${new Date(tenant.dateOccupied).toLocaleDateString()}</p>` : ''}
                     ${tenant.electricitySubmeter ? `<p class="text-gray-600"><i class="fas fa-bolt text-yellow-500 mr-1"></i>Electricity: ${tenant.electricitySubmeter}</p>` : ''}
                     ${tenant.waterSubmeter ? `<p class="text-gray-600"><i class="fas fa-tint text-blue-500 mr-1"></i>Water: ${tenant.waterSubmeter}</p>` : ''}
                 </div>
-                ` : ''}
                 <div class="flex gap-2">
                     <button onclick="viewTenant('${tenant.id}')" 
                             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
@@ -161,6 +160,7 @@ async function openTenantModal(tenant = null) {
         document.getElementById('tenantId').value = tenant.id;
         document.getElementById('tenantApartmentName').value = tenant.apartmentName;
         document.getElementById('tenantLocation').value = tenant.location;
+        document.getElementById('dateOccupied').value = tenant.dateOccupied || '';
         document.getElementById('electricitySubmeter').value = tenant.electricitySubmeter || '';
         document.getElementById('waterSubmeter').value = tenant.waterSubmeter || '';
         
@@ -218,6 +218,7 @@ async function handleTenantSubmit(e) {
         apartmentName: document.getElementById('tenantApartmentName').value,
         location: document.getElementById('tenantLocation').value,
         tenantNames: tenantNames,
+        dateOccupied: document.getElementById('dateOccupied').value,
         electricitySubmeter: document.getElementById('electricitySubmeter').value || null,
         waterSubmeter: document.getElementById('waterSubmeter').value || null
     };
@@ -263,10 +264,12 @@ async function viewTenant(id) {
                     `).join('')}
                 </div>
             </div>
-            ${tenant.electricitySubmeter || tenant.waterSubmeter ? `
             <div class="mb-4">
-                <p class="text-sm text-gray-600 mb-2">Submeters</p>
+                <p class="text-sm text-gray-600 mb-2">Details</p>
                 <div class="space-y-2">
+                    ${tenant.dateOccupied ? `
+                        <p class="text-gray-800"><i class="fas fa-calendar text-purple-500 mr-2"></i>Date Occupied: ${new Date(tenant.dateOccupied).toLocaleDateString()}</p>
+                    ` : ''}
                     ${tenant.electricitySubmeter ? `
                         <p class="text-gray-800"><i class="fas fa-bolt text-yellow-500 mr-2"></i>Electricity: ${tenant.electricitySubmeter}</p>
                     ` : ''}
@@ -275,7 +278,6 @@ async function viewTenant(id) {
                     ` : ''}
                 </div>
             </div>
-            ` : ''}
             ${auth.isAuthenticated() ? `
             <div class="flex gap-3 mt-6">
                 <button onclick="editTenant('${tenant.id}')" 
