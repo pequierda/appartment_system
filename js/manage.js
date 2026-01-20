@@ -1,4 +1,5 @@
 let apartments = [];
+window.apartments = apartments;
 
 document.addEventListener('DOMContentLoaded', () => {
     setupManageListeners();
@@ -21,11 +22,14 @@ function setupManageListeners() {
 async function loadApartments() {
     try {
         apartments = await api.getAllApartments();
+        window.apartments = apartments;
         if (typeof updateTenantDropdowns === 'function') {
             updateTenantDropdowns();
         }
     } catch (error) {
         console.error('Error loading apartments:', error);
+        apartments = [];
+        window.apartments = apartments;
     }
 }
 
@@ -38,15 +42,23 @@ function updateTenantDropdowns() {
     
     if (!apartmentSelect || !locationSelect) return;
 
+    const apts = window.apartments || apartments || [];
+    
+    if (!Array.isArray(apts) || apts.length === 0) {
+        apartmentSelect.innerHTML = '<option value="">No apartments available. Please add apartments first.</option>';
+        locationSelect.innerHTML = '<option value="">No locations available</option>';
+        return;
+    }
+
     apartmentSelect.innerHTML = '<option value="">Select Apartment</option>';
     locationSelect.innerHTML = '<option value="">Select Location</option>';
 
-    const uniqueLocations = [...new Set(apartments.map(apt => apt.location))];
+    const uniqueLocations = [...new Set(apts.map(apt => apt.location))];
 
-    apartments.forEach(apt => {
+    apts.forEach(apt => {
         const option = document.createElement('option');
         option.value = apt.name;
-        option.textContent = `${apt.name} - ${apt.unit}`;
+        option.textContent = `${apt.name} - ${apt.unit || ''}`;
         apartmentSelect.appendChild(option);
     });
 
@@ -58,7 +70,7 @@ function updateTenantDropdowns() {
     });
 
     apartmentSelect.addEventListener('change', (e) => {
-        const selectedApartment = apartments.find(apt => apt.name === e.target.value);
+        const selectedApartment = apts.find(apt => apt.name === e.target.value);
         if (selectedApartment) {
             locationSelect.value = selectedApartment.location;
         }
